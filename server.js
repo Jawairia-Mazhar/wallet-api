@@ -22,4 +22,7 @@ app.get('/test-db', async (req, res) => {
 const authRoutes = require('./routes/authRoutes');
 app.use('/api/auth', authRoutes);
 
+const accountRoutes = require('./routes/accountRoutes');
+app.use('/api/accounts', accountRoutes);
+
 app.listen(process.env.PORT || 5000, () => console.log('Server running'));
