@@ -19,5 +19,7 @@ app.get('/test-db', async (req, res) => {
     res.status(500).json({ message: 'DB connection failed' });
   }
 });
+const authRoutes = require('./routes/authRoutes');
+app.use('/api/auth', authRoutes);
 
 app.listen(process.env.PORT || 5000, () => console.log('Server running'));
