@@ -68,4 +68,53 @@ const transfer = async(req, res) => {
     }
 }
 
-module.exports = { createAccount, getMyAccount, transfer};
+const deposit = async (req, res) => {
+    try { 
+        const { amount } = req.body;
+
+        if (!amount || amount <= 0) {
+            return res.status(400).json({ message: "Invalid amount" });
+        }
+
+        const account = await prisma.account.findFirst({ where: { userId: req.user.id } });
+        if (!account) {
+            return res.status(404).json({ message: "No account found" });
+        }
+
+        const updatedAccount = await prisma.account.update({
+            where: { id: account.id },
+            data: { balance: { increment: amount } },
+        });
+        res.status(200).json({ message: "Deposit successful", account: updatedAccount });
+    }
+    catch (error) {
+        console.log(error);
+        res.status(500).json({message: "Error occurred while processing deposit"});
+    }
+}
+
+const getMyTransactions = async (req, res) => {
+    try {
+        const account = await prisma.account.findFirst({ where: { userId: req.user.id}});
+
+        if (!account) {
+            return res.status(404).json({ message: "No account found" });
+        }
+
+        const transactions = await prisma.transaction.findMany({
+            where: {
+                OR: [
+                    { fromAccountId: account.id },
+                    { toAccountId: account.id }
+                ]
+            }
+        });
+
+        res.status(200).json({transactions});
+    }
+    catch (error) {
+        console.log(error);
+        res.status(500).json({message: "Error fetching transactions"});
+    }
+}
+module.exports = { createAccount, getMyAccount, transfer, deposit, getMyTransactions};
