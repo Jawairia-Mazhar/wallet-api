@@ -1,4 +1,5 @@
 const prisma = require('../config/prisma');
+const { validationResult } = require('express-validator');
 
 const createAccount = async (req, res) => {
     try {
@@ -40,6 +41,10 @@ const getMyAccount = async(req, res) => {
 
 const transfer = async(req, res) => {
     try{
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }        
         const {fromAccountId, toAccountId, amount} = req.body;
         
         if (!amount || amount <= 0) { //not checking for negative numbers, because if amount is negative, it will be caught by the next check (fromAccount.balance < amount)
@@ -70,6 +75,10 @@ const transfer = async(req, res) => {
 
 const deposit = async (req, res) => {
     try { 
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
         const { amount } = req.body;
 
         if (!amount || amount <= 0) {
